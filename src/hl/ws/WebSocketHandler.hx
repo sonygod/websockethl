@@ -12,6 +12,7 @@ class WebSocketHandler extends WebSocketParse {
 			case State.Handshake:
 				var httpRequest = recvHttpRequest();
 				if (httpRequest == null) {
+					trace('warning  no http requrest!');
 					return;
 				}
 

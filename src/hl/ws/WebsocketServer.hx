@@ -13,17 +13,21 @@ class WebsocketServer {
 
 	public function new(url:String, port:Int) {
 		var loop = Loop.getDefault();
+	
 		tcp = new Tcp(loop);
 		host = new sys.net.Host(url);
 		this.port = port;
 	}
 
 	public function start() {
+		
 		tcp.bind(host, port);
 
-		tcp.listen(1, function() {
+	
+		tcp.listen(5, function() {
 			var s = tcp.accept();
 			var x = new WebSocketHandler(s);
+			x.start();
 			x.onmessage=function (ms:MessageBuffType) {
 				
 				if(ms.type==text){

@@ -34,8 +34,10 @@ class WebSocketParse {
 		id = _nextId++;
 
 		_socket = socket;
+	}
 
-		socket.readStart(function(b) {
+	public function start() {
+		_socket.readStart(function(b) {
 			onRead(b);
 		});
 	}
@@ -43,7 +45,10 @@ class WebSocketParse {
 	public function onRead(b:Bytes) {
 		process();
 		if (b != null) {
+
+			
 			_buffer.writeBytes(b);
+			var x=b.toString();
 		} else {
 			return;
 		}
@@ -52,15 +57,14 @@ class WebSocketParse {
 	}
 
 	public function send(data:Any) {
-        if (Std.is(data, String)) {
-           
-            sendFrame(Utf8Encoder.encode(data), OpCode.Text);
-        } else if (Std.is(data, Bytes)) {
-            sendFrame(data, OpCode.Binary);
-        } else if (Std.is(data, Buffer)) {
-            sendFrame(cast(data, Buffer).readAllAvailableBytes(), OpCode.Binary);
-        }
-    }
+		if (Std.is(data, String)) {
+			sendFrame(Utf8Encoder.encode(data), OpCode.Text);
+		} else if (Std.is(data, Bytes)) {
+			sendFrame(data, OpCode.Binary);
+		} else if (Std.is(data, Buffer)) {
+			sendFrame(cast(data, Buffer).readAllAvailableBytes(), OpCode.Binary);
+		}
+	}
 
 	private function sendFrame(data:Bytes, type:OpCode) {
 		writeBytes(prepareFrame(data, type, true));
@@ -173,7 +177,7 @@ class WebSocketParse {
 	public function close() {
 		if (state != State.Closed) {
 			try {
-				trace("主动关闭  close socket!!!!");
+				trace(" close socket!!!!");
 				sendFrame(Bytes.alloc(0), OpCode.Close);
 				state = State.Closed;
 				_socket.close();
@@ -262,8 +266,6 @@ class WebSocketParse {
 	private var index:Int = 0;
 
 	private function process() {
-
-
 		if (_onopenCalled == false) {
 			_onopenCalled = true;
 			if (onopen != null) {
@@ -282,9 +284,23 @@ class WebSocketParse {
 
 	public function sendHttpRequest(httpRequest:HttpRequest) {
 		var data = httpRequest.build();
+		var b = Bytes.ofString(data);
 
+		var testb = new Buffer();
+
+		testb.writeBytes(b);
+
+		while (true) {
+			var c = testb.readLine();
+
+			if (c == null) {
+				break;
+			}
+			trace(c);
+		}
+		trace(b.length);
 		try {
-			_socket.write(Bytes.ofString(data));
+			_socket.write(b);
 		} catch (e:Dynamic) {
 			if (onerror != null) {
 				onerror(Std.string(e));
@@ -307,8 +323,11 @@ class WebSocketParse {
 		var httpRequest = new HttpRequest();
 		while (true) {
 			var line = _buffer.readLine();
-			if (line == null || line == "") {
+			if (line == null) {
 				break;
+			}
+			if (line == "") {
+				continue;
 			}
 			httpRequest.addLine(line);
 		}

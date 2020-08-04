@@ -45,36 +45,22 @@ class WebSocketClient extends WebSocketParse {
 			_uri = "/";
 		}
 
-	
-
 		tcp.connect(new sys.net.Host(_host), _port, function(b) {
 			if (b) {
 				trace('connect');
-				
-				
-				//sendHandshake();
-			
+
+				// sendHandshake();
+
 				start();
 				sendHandshake();
-			
-
-
-				
-
-			
-
-				
-			
 			} else {
 				if (onerror != null) {
 					onerror('connect error');
 				}
 			}
 		});
-		
+
 		super(tcp);
-	
-	
 	}
 
 	public function sendHandshake() {
@@ -128,13 +114,11 @@ class WebSocketClient extends WebSocketParse {
 			close();
 			return;
 		}
-		if (onopen!= null) {
+		if (onopen != null) {
 			onopen();
-			onopen=null;
+			onopen = null;
 		}
-	
-		
+
 		state = State.Head;
-	
 	}
 }

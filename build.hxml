@@ -8,5 +8,5 @@
 --hl bin/websocketTest.hl
 --next
 --hl out/main.c
---cmd  gcc -O3 -o Database_BackUP.hlc -std=c11 -I out out/main.c -lhl /usr/lib/*.hdll
+--cmd  gcc -O3 -o Database_BackUP.hlc -std=c11 -I out out/main.c -lhl /usr/lib/*.hdll -luv
 

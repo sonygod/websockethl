@@ -1,11 +1,15 @@
 package hl.ws;
 
+import hl.ws.IHander;
 import hl.ws.MessageType.MessageBuffType;
 import haxe.io.Bytes;
 import sys.net.Host;
 import hl.uv.*;
+import haxe.Constraints;
+import hl.ws.ISession;
 
-class WebsocketServer {
+@:generic
+class WebsocketServer  <T:Constructible<IHander->Void>> {
 	var tcp:Tcp;
 	var host:Host;
 	var port:Int;
@@ -28,13 +32,12 @@ class WebsocketServer {
 			var s = tcp.accept();
 			var x = new WebSocketHandler(s);
 			x.start();
-			x.onmessage=function (ms:MessageBuffType) {
-				
-				if(ms.type==text){
-					trace(ms.text);
-					x.send(ms.text);
-				}
-			}
+			var session:ISession=cast new T(x);//here is parse and encode and decode byts.
+
+			x.setupSession(session);
+			
+
+			
 		});
 	}
 

@@ -3,8 +3,29 @@ package hl.ws;
 import haxe.io.Bytes;
 
 class WebSocketHandler extends WebSocketParse {
+	
+
 	public function new(socket) {
 		super(socket);
+	}
+
+	public function setupSession(session:ISession) {
+		
+		onopen = function() {
+			session.onOpen(this);
+		}
+		onclose = function() {
+			session.onClose(this);
+		}
+		onmessage = function(message) {
+			this.message = message;
+			session.onDataCS(this);
+		}
+		onerror = function(error) {
+			// trace(id + ". ERROR: " + error);
+			this.error = error;
+			session.onClose(this);
+		}
 	}
 
 	private override function handleData() {

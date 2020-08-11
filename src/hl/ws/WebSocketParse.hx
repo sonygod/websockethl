@@ -9,7 +9,7 @@ import haxe.crypto.Sha1;
 import hl.ws.MessageType.MsgTYpe;
 import hl.ws.MessageType.MessageBuffType;
 
-class WebSocketParse {
+class WebSocketParse  implements IHander{
 	private static var _nextId:Int = 1;
 
 	public var id:Int;
@@ -29,6 +29,9 @@ class WebSocketParse {
 	public var origin:String = 'localhost';
 
 	private var _buffer:Buffer = new Buffer();
+
+	public var message:Dynamic;
+	public var error:Dynamic;
 
 	public function new(socket:Stream) {
 		id = _nextId++;
@@ -136,9 +139,11 @@ class WebSocketParse {
 							var messageData = _payload.readAllAvailableBytes();
 							var unmaskedMessageData = (_isMasked) ? applyMask(messageData, _mask) : messageData;
 							if (_frameIsBinary) {
+								
 								if (this.onmessage != null) {
 									var buffer = new Buffer();
 									buffer.writeBytes(unmaskedMessageData);
+								
 									this.onmessage({
 										type: MsgTYpe.binary,
 										data: buffer
@@ -174,7 +179,7 @@ class WebSocketParse {
 		}
 	}
 
-	public function close() {
+	public function close() :Void{
 		if (state != State.Closed) {
 			try {
 				trace(" close socket!!!!");

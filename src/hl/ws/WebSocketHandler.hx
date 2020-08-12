@@ -3,14 +3,11 @@ package hl.ws;
 import haxe.io.Bytes;
 
 class WebSocketHandler extends WebSocketParse {
-	
-
 	public function new(socket) {
 		super(socket);
 	}
 
 	public function setupSession(session:ISession) {
-		
 		onopen = function() {
 			session.onOpen(this);
 		}
@@ -58,6 +55,7 @@ class WebSocketHandler extends WebSocketParse {
 			origin = httpRequest.headers.get("Origin");
 			trace('from origin=' + origin);
 		}
+
 		if (httpRequest.method != "GET" || httpRequest.httpVersion != "HTTP/1.1") {
 			httpResponse.code = 400;
 			httpResponse.text = "Bad";
@@ -94,6 +92,13 @@ class WebSocketHandler extends WebSocketParse {
 			httpResponse.headers.set(HttpHeader.UPGRADE, "websocket");
 			httpResponse.headers.set(HttpHeader.CONNECTION, "Upgrade");
 			httpResponse.headers.set(HttpHeader.SEC_WEBSOSCKET_ACCEPT, result);
+		}
+
+		if (origin != null && origin.indexOf("127.0.0.1") == -1) {
+			httpResponse.code = 403;
+			httpResponse.text = "forbidden";
+			httpResponse.headers.set(HttpHeader.CONNECTION, "close");
+			httpResponse.headers.set(HttpHeader.X_WEBSOCKET_REJECT_REASON, 'Bad request');
 		}
 
 		sendHttpResponse(httpResponse);

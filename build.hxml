@@ -1,11 +1,12 @@
 -cp src
 -cp linc
--D analyzer-optimize
 -main Main
-
+-D linc_uv
 -D hl-ver=1.12.0
---debug
 --cpp bin/cpp
+-D HXCPP_M64
+-D windows
+
 # --hl bin/websocketTest.hl
 # --each
 # --hl bin/websocketTest.hl

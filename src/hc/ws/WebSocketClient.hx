@@ -4,7 +4,8 @@ package hc.ws;
 
 import haxe.crypto.Base64;
 import haxe.MainLoop;
-import hxuv.Tcp;
+import uv.Tcp;
+using TcpHelper;
 class WebSocketClient extends WebSocketParse {
 	public var _host:String;
 	public var _port:Int;
@@ -16,7 +17,7 @@ class WebSocketClient extends WebSocketParse {
 	public var binaryType:BinaryType;
 
 	public function new(uri:String) {
-		var tcp = Tcp.alloc();
+		var tcp = new Tcp();
 
 		var uriRegExp = ~/^(\w+?):\/\/([\w\.-]+)(:(\d+))?(\/.*)?$/;
 
@@ -45,8 +46,8 @@ class WebSocketClient extends WebSocketParse {
 			_uri = "/";
 		}
 
-		tcp.connect(_host, _port, function(status) {
-			if (status==null) {
+		tcp.connectWith(_host, _port, function(status) {
+			if (status) {
 				trace('connect');
 
 				// sendHandshake();
@@ -55,7 +56,7 @@ class WebSocketClient extends WebSocketParse {
 				sendHandshake();
 			} else {
 				if (onerror != null) {
-					onerror('connect error'+status.toErrorCode);
+					onerror('connect error');
 				}
 			}
 		});

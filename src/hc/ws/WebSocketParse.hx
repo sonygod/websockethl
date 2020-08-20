@@ -1,6 +1,7 @@
 package hc.ws;
 
-import hxuv.Stream;
+import cpp.Callable;
+import uv.Tcp;
 import hc.ws.HttpResponse;
 import haxe.io.Bytes;
 import haxe.io.Error;
@@ -8,6 +9,13 @@ import haxe.crypto.Base64;
 import haxe.crypto.Sha1;
 import hc.ws.MessageType.MsgTYpe;
 import hc.ws.MessageType.MessageBuffType;
+import haxe.io.UInt8Array;
+import cpp.*;
+import uv.*;
+import uv.Uv;
+import haxe.io.Bytes;
+
+using TcpHelper;
 
 class WebSocketParse implements IHander {
 	private static var _nextId:Int = 1;
@@ -15,7 +23,7 @@ class WebSocketParse implements IHander {
 	public var id:Int;
 	public var state:State = State.Handshake;
 
-	private var _socket:Stream;
+	private var _socket:Tcp;
 
 	private var _onopenCalled:Null<Bool> = null;
 	private var _lastError:Dynamic = null;
@@ -33,19 +41,15 @@ class WebSocketParse implements IHander {
 	public var message:Dynamic;
 	public var error:Dynamic;
 
-	public function new(socket:Stream) {
+	public function new(socket:Tcp) {
 		id = _nextId++;
 
 		_socket = socket;
 	}
 
 	public function start() {
-		_socket.readStart(function(status, bytes) {
-			if (bytes != null) {
-				onRead(bytes);
-			} else {
-				close();
-			}
+		_socket.readStart(function(b) {
+			onRead(b);
 		});
 	}
 
@@ -186,9 +190,9 @@ class WebSocketParse implements IHander {
 				trace(" close socket!!!!");
 				sendFrame(Bytes.alloc(0), OpCode.Close);
 				state = State.Closed;
-				_socket.close(function () {
+
+				_socket.close(function() {
 					trace('socket close');
-					
 				});
 				// throw "主动关闭？";
 			} catch (e:Dynamic) {}
@@ -217,8 +221,6 @@ class WebSocketParse implements IHander {
 			}
 		}
 	}
-
-
 
 	private function prepareFrame(data:Bytes, type:OpCode, isFinal:Bool):Bytes {
 		var out = new Buffer();
@@ -301,9 +303,7 @@ class WebSocketParse implements IHander {
 		}
 		trace(b.length);
 		try {
-			_socket.write(b,function (_) {
-				
-			});
+			_socket.write(b, function(_) {});
 		} catch (e:Dynamic) {
 			if (onerror != null) {
 				onerror(Std.string(e));
@@ -315,9 +315,7 @@ class WebSocketParse implements IHander {
 	public function sendHttpResponse(httpResponse:HttpResponse) {
 		var data = httpResponse.build();
 
-		_socket.write(Bytes.ofString(data),function (_) {
-			
-		});
+		_socket.write(Bytes.ofString(data), function(_) {});
 	}
 
 	public function recvHttpRequest():HttpRequest {

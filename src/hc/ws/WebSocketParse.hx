@@ -1,15 +1,15 @@
-package hl.ws;
+package hc.ws;
 
-import hl.uv.Stream;
-import hl.ws.HttpResponse;
+import hxuv.Stream;
+import hc.ws.HttpResponse;
 import haxe.io.Bytes;
 import haxe.io.Error;
 import haxe.crypto.Base64;
 import haxe.crypto.Sha1;
-import hl.ws.MessageType.MsgTYpe;
-import hl.ws.MessageType.MessageBuffType;
+import hc.ws.MessageType.MsgTYpe;
+import hc.ws.MessageType.MessageBuffType;
 
-class WebSocketParse  implements IHander{
+class WebSocketParse implements IHander {
 	private static var _nextId:Int = 1;
 
 	public var id:Int;
@@ -40,18 +40,20 @@ class WebSocketParse  implements IHander{
 	}
 
 	public function start() {
-		_socket.readStart(function(b) {
-			onRead(b);
+		_socket.readStart(function(status, bytes) {
+			if (bytes != null) {
+				onRead(bytes);
+			} else {
+				close();
+			}
 		});
 	}
 
 	public function onRead(b:Bytes) {
 		process();
 		if (b != null) {
-
-			
 			_buffer.writeBytes(b);
-			var x=b.toString();
+			var x = b.toString();
 		} else {
 			return;
 		}
@@ -139,11 +141,10 @@ class WebSocketParse  implements IHander{
 							var messageData = _payload.readAllAvailableBytes();
 							var unmaskedMessageData = (_isMasked) ? applyMask(messageData, _mask) : messageData;
 							if (_frameIsBinary) {
-								
 								if (this.onmessage != null) {
 									var buffer = new Buffer();
 									buffer.writeBytes(unmaskedMessageData);
-								
+
 									this.onmessage({
 										type: MsgTYpe.binary,
 										data: buffer
@@ -179,13 +180,16 @@ class WebSocketParse  implements IHander{
 		}
 	}
 
-	public function close() :Void{
+	public function close():Void {
 		if (state != State.Closed) {
 			try {
 				trace(" close socket!!!!");
 				sendFrame(Bytes.alloc(0), OpCode.Close);
 				state = State.Closed;
-				_socket.close();
+				_socket.close(function () {
+					trace('socket close');
+					
+				});
 				// throw "主动关闭？";
 			} catch (e:Dynamic) {}
 
@@ -204,7 +208,7 @@ class WebSocketParse  implements IHander{
 
 	private function writeBytes(data:Bytes) {
 		try {
-			_socket.write(data);
+			_socket.write(data, function(_) {});
 		} catch (e:Dynamic) {
 			// Log.debug(e, id);
 			// trace(Std.string(e));
@@ -214,15 +218,7 @@ class WebSocketParse  implements IHander{
 		}
 	}
 
-	// public function dispose() {
-	// 	trace('warning ....... socket dispose');
-	// 	onerror =null;
-	// 	onmessage=null;
-	// 	onclose=null;
-	// 	onopen=null;
-	// 	_socket=null;
-	// 	trace('warning ....... socket dispose');
-	// }
+
 
 	private function prepareFrame(data:Bytes, type:OpCode, isFinal:Bool):Bytes {
 		var out = new Buffer();
@@ -305,7 +301,9 @@ class WebSocketParse  implements IHander{
 		}
 		trace(b.length);
 		try {
-			_socket.write(b);
+			_socket.write(b,function (_) {
+				
+			});
 		} catch (e:Dynamic) {
 			if (onerror != null) {
 				onerror(Std.string(e));
@@ -317,7 +315,9 @@ class WebSocketParse  implements IHander{
 	public function sendHttpResponse(httpResponse:HttpResponse) {
 		var data = httpResponse.build();
 
-		_socket.write(Bytes.ofString(data));
+		_socket.write(Bytes.ofString(data),function (_) {
+			
+		});
 	}
 
 	public function recvHttpRequest():HttpRequest {

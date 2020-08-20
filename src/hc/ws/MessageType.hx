@@ -1,6 +1,6 @@
-package hl.ws;
+package hc.ws;
 
-import hl.ws.Buffer;
+import hc.ws.Buffer;
 
 typedef MessageBuffType = {
 	@:optional var data:Buffer;

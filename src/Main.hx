@@ -1,15 +1,15 @@
 import haxe.io.BytesInput;
 import sys.FileSystem;
 import sys.io.File;
-import hl.ws.MessageType.MsgTYpe;
+import hc.ws.MessageType.MsgTYpe;
 import haxe.Timer;
-import hl.ws.MessageType.MessageBuffType;
+import hc.ws.MessageType.MessageBuffType;
 import haxe.io.Bytes;
-import hl.ws.IHander;
-import hl.ws.ISession;
+import hc.ws.IHander;
+import hc.ws.ISession;
 import haxe.MainLoop;
-import hl.ws.WebsocketServer;
-import hl.ws.WebSocketClient;
+import hc.ws.WebsocketServer;
+import hc.ws.WebSocketClient;
 
 class Session implements ISession {
 	public function new(hander:IHander) {

@@ -1,9 +1,9 @@
-package hl.ws;
+package hc.ws;
 
-class HttpRequest {
-    public var method:String = null;
-    public var uri:String = null;
-    public var httpVersion:String = null;
+class HttpResponse {
+    public var httpVersion:String = "HTTP/1.1";
+    public var code:Int = -1;
+    public var text:String = "";
 
     public var headers:Map<String, String> = new Map<String, String>();
 
@@ -11,11 +11,11 @@ class HttpRequest {
     }
 
     public function addLine(line:String) {
-        if (method == null) {
+        if (code == -1) {
             var parts = line.split(" ");
-            method = parts[0];
-            uri = parts[1];
-            httpVersion = parts[2];
+            httpVersion = parts[0];
+            code = Std.parseInt(parts[1]);
+            text = parts[2];
         } else {
             var n = line.indexOf(":");
             var name = line.substr(0, n);
@@ -25,15 +25,15 @@ class HttpRequest {
     }
 
     public function build():String {
-        var sb = new StringBuf();
+        var sb:StringBuf = new StringBuf();
 
-        sb.add(method);
-        sb.add(" ");
-        if (uri != null) {
-            sb.add(uri);
-            sb.add(" ");
-        }
         sb.add(httpVersion);
+        sb.add(" ");
+        sb.add(code);
+        if (text != "") {
+            sb.add(" ");
+            sb.add(text);
+        }
         sb.add("\r\n");
 
         for (header in headers.keys()) {

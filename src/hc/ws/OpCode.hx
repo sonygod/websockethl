@@ -1,4 +1,4 @@
-package hl.ws;
+package hc.ws;
 
 @:enum abstract OpCode(Int) {
     var Continuation = 0x00;

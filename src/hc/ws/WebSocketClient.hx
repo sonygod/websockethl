@@ -1,10 +1,10 @@
-package hl.ws;
+package hc.ws;
 
 // import sys.thread.Mutex;
-import hl.uv.Tcp;
+
 import haxe.crypto.Base64;
 import haxe.MainLoop;
-
+import hxuv.Tcp;
 class WebSocketClient extends WebSocketParse {
 	public var _host:String;
 	public var _port:Int;
@@ -16,7 +16,7 @@ class WebSocketClient extends WebSocketParse {
 	public var binaryType:BinaryType;
 
 	public function new(uri:String) {
-		var tcp = new Tcp(null);
+		var tcp = Tcp.alloc();
 
 		var uriRegExp = ~/^(\w+?):\/\/([\w\.-]+)(:(\d+))?(\/.*)?$/;
 
@@ -45,8 +45,8 @@ class WebSocketClient extends WebSocketParse {
 			_uri = "/";
 		}
 
-		tcp.connect(new sys.net.Host(_host), _port, function(b) {
-			if (b) {
+		tcp.connect(_host, _port, function(status) {
+			if (status==null) {
 				trace('connect');
 
 				// sendHandshake();
@@ -55,7 +55,7 @@ class WebSocketClient extends WebSocketParse {
 				sendHandshake();
 			} else {
 				if (onerror != null) {
-					onerror('connect error');
+					onerror('connect error'+status.toErrorCode);
 				}
 			}
 		});

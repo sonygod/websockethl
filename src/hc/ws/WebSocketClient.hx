@@ -1,10 +1,10 @@
 package hc.ws;
 
 // import sys.thread.Mutex;
-
 import haxe.crypto.Base64;
 import haxe.MainLoop;
 import hxuv.Tcp;
+
 class WebSocketClient extends WebSocketParse {
 	public var _host:String;
 	public var _port:Int;
@@ -46,17 +46,17 @@ class WebSocketClient extends WebSocketParse {
 		}
 
 		tcp.connect(_host, _port, function(status) {
-			if (status==null) {
+			if (status) {
 				trace('connect');
 
 				// sendHandshake();
 
+				if (onerror != null) {
+					onerror('connect error'+status.toErrorCode());
+				}
+			} else {
 				start();
 				sendHandshake();
-			} else {
-				if (onerror != null) {
-					onerror('connect error'+status.toErrorCode);
-				}
 			}
 		});
 

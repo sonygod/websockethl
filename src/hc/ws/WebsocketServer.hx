@@ -1,42 +1,50 @@
 package hc.ws;
 
-import hxuv.Tcp;
 import hc.ws.IHander;
 import hc.ws.MessageType.MessageBuffType;
 import haxe.io.Bytes;
 import sys.net.Host;
 import haxe.Constraints;
 import hc.ws.ISession;
+import haxe.io.UInt8Array;
+import cpp.*;
+import uv.*;
+import uv.Uv;
+import haxe.io.Bytes;
+import hxuv.Tcp;
+
 
 @:generic
 class WebsocketServer<T:Constructible<IHander->Void>> {
-	var tcp:Tcp;
-	var host:Host;
+	var server:Tcp;
+	var host:String;
 	var port:Int;
 
 	public function new(url:String, port:Int) {
-		tcp = Tcp.alloc();
-		host = new sys.net.Host(url);
-		tcp.bind(url, port, 0);
-		this.port = port;
+		 server = Tcp.alloc();
+		var status=server.bind(url, port, 0);
+		trace('server bind status= $status');
 	}
 
 	public function start() {
-		tcp.bind(host.host, port, 0);
-
-		tcp.listen(128, function(_) {
+		server.listen(128, function(_) {
 			var client = Tcp.alloc();
-			tcp.accept(client);
+			server.accept(client);
+
+
 			var x = new WebSocketHandler(client);
 			x.start();
 			var session:ISession = cast new T(x); // here is parse and encode and decode byts.
 
 			x.setupSession(session);
 		});
+		
 	}
 
+	
+
 	public function close() {
-		tcp.close(function() {
+		server.close(function() {
 			trace('onclose');
 		});
 	}

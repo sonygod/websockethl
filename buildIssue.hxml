@@ -1,0 +1,17 @@
+-cp src
+-cp linc
+-main TestIssue
+-D linc_uv
+-D hl-ver=1.12.0
+--cpp bin/cpp
+-D HXCPP_M64
+-D windows
+-lib tink_anon
+
+# --hl bin/websocketTest.hl
+# --each
+# --hl bin/websocketTest.hl
+# --next
+# --hl out/main.c
+# # --cmd  gcc -O3 -o websockettest.hlc -std=c11 -I out out/main.c -lhl /usr/lib/*.hdll -luv
+

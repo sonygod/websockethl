@@ -72,7 +72,7 @@ class TestIssue {
 
 //only for test with tink_lib
 		var o = { beep: 5, bop: 4 };
-		var o2:{ foo:Int, bar: Int, beep: Int, bop: Int } = tink.Anon.merge(o, foo = 3, baz = 5);
+		var o2:{ foo:Int, bar: Int, beep: Int, bop: Int } = tink.Anon.merge(o, foo = 3, bar = 5);
 //--------------		
 
 		var wsServer = new WebsocketServer<Session>('127.0.0.1', 9000);

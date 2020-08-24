@@ -34,25 +34,19 @@ class Loop extends Base {
 	// fs
 	
 	public inline function open(path, flags, mode):Status {
-		var req = Fs.alloc();
-		return loop.open(req.fs, path, flags, mode, null);
+		// var req = Fs.alloc();
+		// return loop.open(req.fs, path, flags, mode, null);
+
+		return 0;
 	}
 		
 	public inline function close(file):Status {
-		var req = Fs.alloc();
-		return loop.close(req.fs, file, null);
+	
+		return 0;
 	}
 	
 	public inline function read(file, offset, cb:Status->Bytes->Void):Status {
-		var buf = new uv.Buf();
-		buf.alloc(0xffff);
-		var req = Fs.alloc();
-		req.retain();
-		req.data = {
-			cb: cb,
-			buf: buf,
-		}
-		return loop.read(req.fs, file, buf, 1, offset, Callable.fromStaticFunction(onRead));
+		return 0;
 	}
 	
 	override function finalize() {

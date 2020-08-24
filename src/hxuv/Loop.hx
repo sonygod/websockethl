@@ -3,7 +3,7 @@ package hxuv;
 import uv.Uv;
 import cpp.*;
 import haxe.io.Bytes;
-using uv.Fs;
+
 class Loop extends Base {
 	public var loop(default, null):uv.Loop;
 	
@@ -34,17 +34,25 @@ class Loop extends Base {
 	// fs
 	
 	public inline function open(path, flags, mode):Status {
-		// var req = Fs.alloc();
-		// return loop.open(req.fs, path, flags, mode, null);
-		return 0;
+		var req = Fs.alloc();
+		return loop.open(req.fs, path, flags, mode, null);
 	}
 		
 	public inline function close(file):Status {
-		return 0;
+		var req = Fs.alloc();
+		return loop.close(req.fs, file, null);
 	}
 	
 	public inline function read(file, offset, cb:Status->Bytes->Void):Status {
-		return 0;
+		var buf = new uv.Buf();
+		buf.alloc(0xffff);
+		var req = Fs.alloc();
+		req.retain();
+		req.data = {
+			cb: cb,
+			buf: buf,
+		}
+		return loop.read(req.fs, file, buf, 1, offset, Callable.fromStaticFunction(onRead));
 	}
 	
 	override function finalize() {
